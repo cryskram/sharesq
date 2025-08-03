@@ -1,103 +1,112 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import { ME_QUERY } from "@/lib/queries";
+import { useQuery } from "@apollo/client";
+import { useState } from "react";
+import {
+  FaArrowCircleDown,
+  FaArrowCircleUp,
+  FaUsers,
+  FaClock,
+  FaPlusCircle,
+} from "react-icons/fa";
+
+export default function HomePage() {
+  const { data, loading } = useQuery(ME_QUERY);
+  const [showModal, setShowModal] = useState(false);
+
+  const totalOwed = 420;
+  const totalLent = 820;
+
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+    <main className="relative min-h-screen px-4 pt-28 pb-20 overflow-hidden text-white">
+      <div className="absolute inset-0 -z-10 bg-gradient-to-br from-[#2a0845] via-[#6441a5] to-[#ff6f61]" />
+      <div className="absolute top-20 left-20 w-96 h-96 bg-purple-500/20 blur-3xl rounded-full" />
+      <div className="absolute bottom-16 right-16 w-80 h-80 bg-pink-500/20 blur-3xl rounded-full" />
+      <div className="absolute top-1/3 left-1/3 w-72 h-72 bg-orange-400/20 blur-2xl rounded-full" />
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+      <div className="max-w-5xl mx-auto space-y-10">
+        <h1 className="text-3xl font-semibold text-white/90">
+          {loading
+            ? "Loading..."
+            : `Welcome, ${data?.me?.name?.split(" ")[0] || "there"} 👋`}
+        </h1>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <div className="glass-card border-l-4 border-red-500 hover:shadow-red-400/30 hover:scale-[1.015] transition-all duration-300">
+            <div className="flex items-center gap-4">
+              <FaArrowCircleUp className="text-red-400" size={32} />
+              <div>
+                <p className="text-sm text-neutral-300">You Owe</p>
+                <p className="text-xl font-bold text-red-400">₹{totalOwed}</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="glass-card border-l-4 border-green-500 hover:shadow-green-400/30 hover:scale-[1.015] transition-all duration-300">
+            <div className="flex items-center gap-4">
+              <FaArrowCircleDown className="text-green-400" size={32} />
+              <div>
+                <p className="text-sm text-neutral-300">You Lent</p>
+                <p className="text-xl font-bold text-green-400">₹{totalLent}</p>
+              </div>
+            </div>
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+
+        <div className="glass-card hover:shadow-white/20 transition-all duration-300">
+          <div className="flex items-center gap-2 mb-4">
+            <FaUsers size={20} />
+            <h2 className="text-lg font-medium">Your Groups</h2>
+          </div>
+          <ul className="space-y-2">
+            {data?.me?.groups?.map((group: any) => (
+              <li
+                key={group.id}
+                className="px-3 py-2 bg-white/5 hover:bg-white/10 rounded-md transition-colors"
+              >
+                {group.name}
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div className="glass-card hover:shadow-white/20 transition-all duration-300">
+          <div className="flex items-center gap-2 mb-4">
+            <FaClock size={20} />
+            <h2 className="text-lg font-medium">Recent Activity</h2>
+          </div>
+          <ul className="space-y-2 text-neutral-300">
+            <li className="bg-white/5 px-3 py-2 rounded-md">You paid ₹300</li>
+            <li className="bg-white/5 px-3 py-2 rounded-md">
+              Ashwin settled ₹150
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <button
+        onClick={() => setShowModal(true)}
+        className="fixed bottom-6 right-6 z-40 bg-white/10 hover:bg-white/20 text-white backdrop-blur-md border border-white/20 rounded-full p-4 shadow-xl transition-all"
+      >
+        <span className="text-2xl font-bold">
+          <FaPlusCircle />
+        </span>
+      </button>
+
+      {showModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="bg-white/10 p-6 rounded-2xl max-w-sm w-full text-white border border-white/20 shadow-2xl">
+            <h2 className="text-lg font-semibold mb-4">Add Expense</h2>
+            <button
+              onClick={() => setShowModal(false)}
+              className="mt-4 w-full bg-white/10 hover:bg-white/20 py-2 rounded-xl transition"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
+    </main>
   );
 }
