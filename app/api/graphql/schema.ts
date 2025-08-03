@@ -30,10 +30,12 @@ export const typeDefs = gql`
     me: User
     groups: [Group!]!
     expenses(groupId: ID!): [Expense!]!
+    users: [User!]!
   }
 
   type Mutation {
     createGroup(name: String!): Group!
     addExpense(groupId: ID!, title: String!, amount: Float!): Expense!
+    createGroupWithMembers(name: String!, userIds: [ID!]!): Group!
   }
 `;

@@ -11,6 +11,7 @@ export const config = {
 const yoga = createYoga<{ request: Request }>({
   schema: createSchema({ typeDefs, resolvers }),
   graphqlEndpoint: "/api/graphql",
+  graphiql: process.env.NODE_ENV === "development",
   fetchAPI: { Response, Request, Headers },
 });
 

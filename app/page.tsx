@@ -1,5 +1,6 @@
 "use client";
 
+import CreateGroupModal from "@/components/CreateGroupModal";
 import { ME_QUERY } from "@/lib/queries";
 import { useQuery } from "@apollo/client";
 import { useState } from "react";
@@ -59,16 +60,22 @@ export default function HomePage() {
             <FaUsers size={20} />
             <h2 className="text-lg font-medium">Your Groups</h2>
           </div>
-          <ul className="space-y-2">
-            {data?.me?.groups?.map((group: any) => (
-              <li
-                key={group.id}
-                className="px-3 py-2 bg-white/5 hover:bg-white/10 rounded-md transition-colors"
-              >
-                {group.name}
-              </li>
-            ))}
-          </ul>
+          {data?.me?.groups?.length > 0 ? (
+            <ul className="space-y-2">
+              {data.me.groups.map((group: any) => (
+                <li
+                  key={group.id}
+                  className="px-3 py-2 bg-white/5 hover:bg-white/10 rounded-md transition-colors"
+                >
+                  {group.name}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-neutral-400">
+              You're not part of any groups yet.
+            </p>
+          )}
         </div>
 
         <div className="glass-card hover:shadow-white/20 transition-all duration-300">
@@ -94,19 +101,7 @@ export default function HomePage() {
         </span>
       </button>
 
-      {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-          <div className="bg-white/10 p-6 rounded-2xl max-w-sm w-full text-white border border-white/20 shadow-2xl">
-            <h2 className="text-lg font-semibold mb-4">Add Expense</h2>
-            <button
-              onClick={() => setShowModal(false)}
-              className="mt-4 w-full bg-white/10 hover:bg-white/20 py-2 rounded-xl transition"
-            >
-              Close
-            </button>
-          </div>
-        </div>
-      )}
+      <CreateGroupModal />
     </main>
   );
 }

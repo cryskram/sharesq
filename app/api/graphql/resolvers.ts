@@ -3,6 +3,9 @@ import { prisma } from "@/lib/prisma";
 
 export const resolvers = {
   Query: {
+    users: async () => {
+      return await prisma.user.findMany();
+    },
     me: async () => {
       const session = await auth();
       if (!session?.user?.email) return null;
@@ -101,6 +104,26 @@ export const resolvers = {
       });
 
       return expense;
+    },
+
+    createGroupWithMembers: async (
+      _: any,
+      { name, userIds }: { name: string; userIds: string[] }
+    ) => {
+      const group = await prisma.group.create({
+        data: {
+          name,
+        },
+      });
+
+      await prisma.userGroup.createMany({
+        data: userIds.map((id) => ({
+          userId: id,
+          groupId: group.id,
+        })),
+      });
+
+      return group;
     },
   },
 
