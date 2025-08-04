@@ -1,4 +1,5 @@
 import { auth } from "@/app/auth";
+import { generateUniqueInviteCode } from "@/lib/invite";
 import { prisma } from "@/lib/prisma";
 
 export const resolvers = {
@@ -110,14 +111,22 @@ export const resolvers = {
       _: any,
       { name, userIds }: { name: string; userIds: string[] }
     ) => {
+      const session = await auth();
+      if (!session?.user?.id) throw new Error("Unauthorized");
+
+      const inviteCode = await generateUniqueInviteCode();
+
       const group = await prisma.group.create({
         data: {
           name,
+          inviteCode,
         },
       });
 
+      const uniqueUserIds = Array.from(new Set([...userIds, session.user.id]));
+
       await prisma.userGroup.createMany({
-        data: userIds.map((id) => ({
+        data: uniqueUserIds.map((id) => ({
           userId: id,
           groupId: group.id,
         })),

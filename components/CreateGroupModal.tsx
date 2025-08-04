@@ -1,9 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useMutation, useQuery } from "@apollo/client";
 import { gql } from "@apollo/client";
-import { BsPlusCircle } from "react-icons/bs";
+import { CgClose } from "react-icons/cg";
+import { GoPlusCircle } from "react-icons/go";
+import { useSession } from "next-auth/react";
 
 const GET_USERS = gql`
   query GetAllUsers {
@@ -34,14 +36,17 @@ export default function CreateGroupModal() {
   const { data, loading } = useQuery(GET_USERS);
   const [createGroup] = useMutation(CREATE_GROUP);
 
+  const { data: session } = useSession();
+
   const users = data?.users || [];
 
   const filteredUsers = users.filter(
     (user: any) =>
+      user.id !== session?.user?.id &&
+      !selectedUsers.find((u) => u.id === user.id) &&
       (user.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         user.username?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        user.email?.toLowerCase().includes(searchQuery.toLowerCase())) &&
-      !selectedUsers.find((u) => u.id === user.id)
+        user.email?.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
   const handleAddUser = (user: any) => {
@@ -66,7 +71,7 @@ export default function CreateGroupModal() {
         onClick={() => setShowModal(true)}
         className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-white/10 border border-white/20 backdrop-blur-md text-white text-3xl flex items-center justify-center shadow-lg hover:scale-105 transition"
       >
-        <BsPlusCircle />
+        <GoPlusCircle />
       </button>
 
       {showModal && (
@@ -76,7 +81,7 @@ export default function CreateGroupModal() {
               onClick={() => setShowModal(false)}
               className="absolute top-3 right-3 text-white/60 hover:text-white"
             >
-              ✕
+              <CgClose />
             </button>
 
             <h2 className="text-xl font-semibold text-white">Create Group</h2>
@@ -86,7 +91,7 @@ export default function CreateGroupModal() {
               placeholder="Group Name"
               value={groupName}
               onChange={(e) => setGroupName(e.target.value)}
-              className="w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white placeholder:text-white/40"
+              className="w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white placeholder:text-white/40 outline-none"
             />
 
             <input
@@ -94,7 +99,7 @@ export default function CreateGroupModal() {
               placeholder="Search users"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white placeholder:text-white/40"
+              className="w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white placeholder:text-white/40 outline-none"
             />
 
             <ul className="max-h-32 overflow-y-auto space-y-2">

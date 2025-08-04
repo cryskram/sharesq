@@ -10,7 +10,9 @@ import {
   FaUsers,
   FaClock,
   FaPlusCircle,
+  FaPlusSquare,
 } from "react-icons/fa";
+import { FaPlus } from "react-icons/fa6";
 
 export default function HomePage() {
   const { data, loading } = useQuery(ME_QUERY);
@@ -91,15 +93,6 @@ export default function HomePage() {
           </ul>
         </div>
       </div>
-
-      <button
-        onClick={() => setShowModal(true)}
-        className="fixed bottom-6 right-6 z-40 bg-white/10 hover:bg-white/20 text-white backdrop-blur-md border border-white/20 rounded-full p-4 shadow-xl transition-all"
-      >
-        <span className="text-2xl font-bold">
-          <FaPlusCircle />
-        </span>
-      </button>
 
       <CreateGroupModal />
     </main>
