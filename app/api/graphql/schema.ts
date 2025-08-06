@@ -16,6 +16,20 @@ export const typeDefs = gql`
     members: [User!]!
   }
 
+  type ActivityLog {
+    id: ID!
+    message: String!
+    user: User!
+    group: Group!
+    createdAt: String!
+  }
+
+  type Balance {
+    from: User!
+    to: User!
+    amount: Float!
+  }
+
   type Expense {
     id: ID!
     title: String!
@@ -26,11 +40,24 @@ export const typeDefs = gql`
     createdAt: String!
   }
 
+  type Settlement {
+    id: ID!
+    amount: Float!
+    note: String
+    settledBy: User!
+    settledTo: User!
+    group: Group
+    createdAt: String!
+  }
+
   type Query {
     me: User
     groups: [Group!]!
     expenses(groupId: ID!): [Expense!]!
     users: [User!]!
+    balances(groupId: ID!): [Balance!]!
+    activityLogs(groupId: ID!): [ActivityLog!]!
+    myBalances: [Balance!]!
   }
 
   type Mutation {
@@ -43,5 +70,14 @@ export const typeDefs = gql`
       notes: String
       splitWith: [ID!]!
     ): Expense!
+
+    settleUp(
+      groupId: ID!
+      toUserId: ID!
+      amount: Float!
+      note: String
+    ): Settlement!
+
+    createActivityLog(groupId: ID!, message: String!): ActivityLog!
   }
 `;

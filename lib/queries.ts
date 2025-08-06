@@ -90,3 +90,92 @@ export const GROUP_MEMBERS_QUERY = gql`
     }
   }
 `;
+
+export const GET_BALANCES = gql`
+  query GetBalances($groupId: ID!) {
+    balances(groupId: $groupId) {
+      from {
+        id
+        name
+      }
+      to {
+        id
+        name
+      }
+      amount
+    }
+  }
+`;
+
+export const SETTLE_UP = gql`
+  mutation SettleUp(
+    $groupId: ID!
+    $toUserId: ID!
+    $amount: Float!
+    $note: String
+  ) {
+    settleUp(
+      groupId: $groupId
+      toUserId: $toUserId
+      amount: $amount
+      note: $note
+    ) {
+      id
+      amount
+      note
+      createdAt
+      settledBy {
+        id
+        name
+      }
+      settledTo {
+        id
+        name
+      }
+    }
+  }
+`;
+
+export const ACTIVITY_LOGS = gql`
+  query ActivityLogs($groupId: ID!) {
+    activityLogs(groupId: $groupId) {
+      id
+      message
+      createdAt
+      user {
+        id
+        name
+      }
+    }
+  }
+`;
+
+export const CREATE_ACTIVITY_LOG = gql`
+  mutation CreateActivityLog($groupId: ID!, $message: String!) {
+    createActivityLog(groupId: $groupId, message: $message) {
+      id
+      message
+      createdAt
+      user {
+        id
+        name
+      }
+    }
+  }
+`;
+
+export const GET_MY_BALANCES = gql`
+  query GetMyBalances {
+    myBalances {
+      from {
+        id
+        name
+      }
+      to {
+        id
+        name
+      }
+      amount
+    }
+  }
+`;

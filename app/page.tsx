@@ -2,10 +2,10 @@
 
 import AddExpenseModal from "@/components/AddExpenseModal";
 import CreateGroupModal from "@/components/CreateGroupModal";
-import { ME_QUERY } from "@/lib/queries";
+import { ME_QUERY, ACTIVITY_LOGS, GET_MY_BALANCES } from "@/lib/queries";
 import { useQuery } from "@apollo/client";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import {
   FaArrowCircleDown,
   FaArrowCircleUp,
@@ -14,25 +14,41 @@ import {
 } from "react-icons/fa";
 
 export default function HomePage() {
-  const { data, loading } = useQuery(ME_QUERY);
+  const { data: meData, loading: meLoading } = useQuery(ME_QUERY);
+  const { data: balanceData, loading: balanceLoading } =
+    useQuery(GET_MY_BALANCES);
+  const { data: logData } = useQuery(ACTIVITY_LOGS, {
+    variables: {
+      groupId: meData?.me?.groups?.[0]?.id || "",
+    },
+    skip: !meData?.me?.groups?.length,
+  });
+
   const [showExpenseModal, setShowExpenseModal] = useState(false);
   const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null);
 
-  const totalOwed = 420;
-  const totalLent = 820;
+  const currentUserId = meData?.me?.id;
+  const balances = balanceData?.myBalances || [];
+
+  const totalOwed = useMemo(() => {
+    return balances
+      .filter((b: any) => b.from.id === currentUserId)
+      .reduce((sum: number, b: any) => sum + b.amount, 0);
+  }, [balances, currentUserId]);
+
+  const totalLent = useMemo(() => {
+    return balances
+      .filter((b: any) => b.to.id === currentUserId)
+      .reduce((sum: number, b: any) => sum + b.amount, 0);
+  }, [balances, currentUserId]);
 
   return (
     <main className="relative min-h-screen px-4 pt-28 pb-20 overflow-hidden text-white">
-      <div className="absolute inset-0 -z-10 bg-gradient-to-br from-[#2a0845] via-[#6441a5] to-[#ff6f61]" />
-      <div className="absolute top-20 left-20 w-96 h-96 bg-purple-500/20 blur-3xl rounded-full" />
-      <div className="absolute bottom-16 right-16 w-80 h-80 bg-pink-500/20 blur-3xl rounded-full" />
-      <div className="absolute top-1/3 left-1/3 w-72 h-72 bg-orange-400/20 blur-2xl rounded-full" />
-
       <div className="max-w-5xl mx-auto space-y-10">
         <h1 className="text-3xl font-semibold text-white/90">
-          {loading
+          {meLoading
             ? "Loading..."
-            : `Welcome, ${data?.me?.name?.split(" ")[0] || "there"} 👋`}
+            : `Welcome, ${meData?.me?.name?.split(" ")[0] || "there"} 👋`}
         </h1>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -41,7 +57,9 @@ export default function HomePage() {
               <FaArrowCircleUp className="text-red-400" size={32} />
               <div>
                 <p className="text-sm text-neutral-300">You Owe</p>
-                <p className="text-xl font-bold text-red-400">₹{totalOwed}</p>
+                <p className="text-xl font-bold text-red-400">
+                  ₹{totalOwed.toFixed(2)}
+                </p>
               </div>
             </div>
           </div>
@@ -51,7 +69,9 @@ export default function HomePage() {
               <FaArrowCircleDown className="text-green-400" size={32} />
               <div>
                 <p className="text-sm text-neutral-300">You Lent</p>
-                <p className="text-xl font-bold text-green-400">₹{totalLent}</p>
+                <p className="text-xl font-bold text-green-400">
+                  ₹{totalLent.toFixed(2)}
+                </p>
               </div>
             </div>
           </div>
@@ -63,7 +83,7 @@ export default function HomePage() {
             <h2 className="text-lg font-medium">Your Groups</h2>
           </div>
           <ul className="space-y-2">
-            {data?.me?.groups.map((group: any) => (
+            {meData?.me?.groups?.map((group: any) => (
               <li
                 key={group.id}
                 className="px-3 py-2 bg-white/5 hover:bg-white/10 rounded-md transition-all flex justify-between items-center"
@@ -88,12 +108,26 @@ export default function HomePage() {
             <FaClock size={20} />
             <h2 className="text-lg font-medium">Recent Activity</h2>
           </div>
-          <ul className="space-y-2 text-neutral-300">
-            <li className="bg-white/5 px-3 py-2 rounded-md">You paid ₹300</li>
-            <li className="bg-white/5 px-3 py-2 rounded-md">
-              Ashwin settled ₹150
-            </li>
-          </ul>
+          {logData?.activityLogs?.length ? (
+            <ul className="space-y-2 text-neutral-300">
+              {logData.activityLogs.slice(0, 4).map((log: any) => (
+                <li
+                  key={log.id}
+                  className="bg-white/5 px-3 py-2 rounded-md text-sm"
+                >
+                  <span className="text-white font-medium">
+                    {log.user.name}
+                  </span>{" "}
+                  {log.message}
+                  <span className="block text-xs text-white/40">
+                    {new Date(log.createdAt).toLocaleString()}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-sm text-neutral-400">No activity yet.</p>
+          )}
         </div>
       </div>
 
