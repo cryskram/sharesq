@@ -64,12 +64,11 @@ export default function HomePage() {
           </div>
           <ul className="space-y-2">
             {data?.me?.groups.map((group: any) => (
-              <Link
-                href={`/groups/${group.id}`}
+              <li
                 key={group.id}
                 className="px-3 py-2 bg-white/5 hover:bg-white/10 rounded-md transition-all flex justify-between items-center"
               >
-                <h1>{group.name}</h1>
+                <Link href={`/groups/${group.id}`}>{group.name}</Link>
                 <button
                   onClick={() => {
                     setSelectedGroupId(group.id);
@@ -79,7 +78,7 @@ export default function HomePage() {
                 >
                   + Expense
                 </button>
-              </Link>
+              </li>
             ))}
           </ul>
         </div>

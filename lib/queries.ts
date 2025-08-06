@@ -9,6 +9,10 @@ export const ME_QUERY = gql`
         id
         name
         inviteCode
+        members {
+          id
+          name
+        }
       }
     }
   }
@@ -41,12 +45,14 @@ export const ADD_EXPENSE = gql`
     $title: String!
     $notes: String
     $amount: Float!
+    $splitWith: [ID!]!
   ) {
     addExpense(
       groupId: $groupId
       notes: $notes
       amount: $amount
       title: $title
+      splitWith: $splitWith
     ) {
       id
       title
@@ -66,6 +72,19 @@ export const EXPENSE_QUERY = gql`
       notes
       createdAt
       paidBy {
+        name
+      }
+    }
+  }
+`;
+
+export const GROUP_MEMBERS_QUERY = gql`
+  query GetGroupMembers($groupId: ID!) {
+    groups {
+      id
+      name
+      members {
+        id
         name
       }
     }

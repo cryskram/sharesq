@@ -110,7 +110,14 @@ export const resolvers = {
         title,
         amount,
         notes,
-      }: { groupId: string; title: string; amount: number; notes?: string }
+        splitWith,
+      }: {
+        groupId: string;
+        title: string;
+        amount: number;
+        notes?: string;
+        splitWith: string[];
+      }
     ) => {
       const session = await auth();
       if (!session?.user?.id) throw new Error("Unauthorized");
@@ -132,10 +139,23 @@ export const resolvers = {
           group: { connect: { id: groupId } },
           paidBy: { connect: { id: session.user.id } },
         },
-        include: { paidBy: true, group: true },
       });
 
-      return expense;
+      const uniqueUserIds = Array.from(new Set(splitWith));
+      const share = Number((amount / uniqueUserIds.length).toFixed(2));
+
+      await prisma.split.createMany({
+        data: uniqueUserIds.map((userId) => ({
+          expenseId: expense.id,
+          userId,
+          amount: share,
+        })),
+      });
+
+      return await prisma.expense.findUnique({
+        where: { id: expense.id },
+        include: { paidBy: true, group: true },
+      });
     },
   },
 
