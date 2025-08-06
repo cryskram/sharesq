@@ -1,22 +1,22 @@
 "use client";
 
+import AddExpenseModal from "@/components/AddExpenseModal";
 import CreateGroupModal from "@/components/CreateGroupModal";
 import { ME_QUERY } from "@/lib/queries";
 import { useQuery } from "@apollo/client";
+import Link from "next/link";
 import { useState } from "react";
 import {
   FaArrowCircleDown,
   FaArrowCircleUp,
   FaUsers,
   FaClock,
-  FaPlusCircle,
-  FaPlusSquare,
 } from "react-icons/fa";
-import { FaPlus } from "react-icons/fa6";
 
 export default function HomePage() {
   const { data, loading } = useQuery(ME_QUERY);
-  const [showModal, setShowModal] = useState(false);
+  const [showExpenseModal, setShowExpenseModal] = useState(false);
+  const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null);
 
   const totalOwed = 420;
   const totalLent = 820;
@@ -62,22 +62,26 @@ export default function HomePage() {
             <FaUsers size={20} />
             <h2 className="text-lg font-medium">Your Groups</h2>
           </div>
-          {data?.me?.groups?.length > 0 ? (
-            <ul className="space-y-2">
-              {data.me.groups.map((group: any) => (
-                <li
-                  key={group.id}
-                  className="px-3 py-2 bg-white/5 hover:bg-white/10 rounded-md transition-colors"
+          <ul className="space-y-2">
+            {data?.me?.groups.map((group: any) => (
+              <Link
+                href={`/groups/${group.id}`}
+                key={group.id}
+                className="px-3 py-2 bg-white/5 hover:bg-white/10 rounded-md transition-all flex justify-between items-center"
+              >
+                <h1>{group.name}</h1>
+                <button
+                  onClick={() => {
+                    setSelectedGroupId(group.id);
+                    setShowExpenseModal(true);
+                  }}
+                  className="text-sm text-white px-2 py-2 rounded-md bg-white/20 hover:bg-white/30 transition-all duration-150"
                 >
-                  {group.name}
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="text-neutral-400">
-              You're not part of any groups yet.
-            </p>
-          )}
+                  + Expense
+                </button>
+              </Link>
+            ))}
+          </ul>
         </div>
 
         <div className="glass-card hover:shadow-white/20 transition-all duration-300">
@@ -95,6 +99,16 @@ export default function HomePage() {
       </div>
 
       <CreateGroupModal />
+
+      {showExpenseModal && selectedGroupId && (
+        <AddExpenseModal
+          groupId={selectedGroupId}
+          onClose={() => {
+            setSelectedGroupId(null);
+            setShowExpenseModal(false);
+          }}
+        />
+      )}
     </main>
   );
 }

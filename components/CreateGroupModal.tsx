@@ -2,30 +2,10 @@
 
 import { useState } from "react";
 import { useMutation, useQuery } from "@apollo/client";
-import { gql } from "@apollo/client";
 import { CgClose } from "react-icons/cg";
 import { GoPlusCircle } from "react-icons/go";
 import { useSession } from "next-auth/react";
-
-const GET_USERS = gql`
-  query GetAllUsers {
-    users {
-      id
-      name
-      username
-      email
-    }
-  }
-`;
-
-const CREATE_GROUP = gql`
-  mutation CreateGroupWithMembers($name: String!, $userIds: [ID!]!) {
-    createGroupWithMembers(name: $name, userIds: $userIds) {
-      id
-      name
-    }
-  }
-`;
+import { CREATE_GROUP_WITH_MEMBERS, USERS_QUERY } from "@/lib/queries";
 
 export default function CreateGroupModal() {
   const [showModal, setShowModal] = useState(false);
@@ -33,8 +13,8 @@ export default function CreateGroupModal() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedUsers, setSelectedUsers] = useState<any[]>([]);
 
-  const { data, loading } = useQuery(GET_USERS);
-  const [createGroup] = useMutation(CREATE_GROUP);
+  const { data, loading } = useQuery(USERS_QUERY);
+  const [createGroup] = useMutation(CREATE_GROUP_WITH_MEMBERS);
 
   const { data: session } = useSession();
 

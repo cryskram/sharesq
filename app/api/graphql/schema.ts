@@ -35,7 +35,13 @@ export const typeDefs = gql`
 
   type Mutation {
     createGroup(name: String!): Group!
-    addExpense(groupId: ID!, title: String!, amount: Float!): Expense!
     createGroupWithMembers(name: String!, userIds: [ID!]!): Group!
+    addExpense(
+      groupId: ID!
+      title: String!
+      amount: Float!
+      notes: String
+      splitWith: [ID!]!
+    ): Expense!
   }
 `;

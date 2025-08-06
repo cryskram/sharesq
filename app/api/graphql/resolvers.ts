@@ -75,38 +75,6 @@ export const resolvers = {
       return group;
     },
 
-    addExpense: async (
-      _: any,
-      {
-        groupId,
-        title,
-        amount,
-      }: { groupId: string; title: string; amount: number }
-    ) => {
-      const session = await auth();
-      if (!session?.user?.id) throw new Error("Unauthorized");
-
-      const isMember = await prisma.userGroup.findFirst({
-        where: {
-          userId: session.user.id,
-          groupId,
-        },
-      });
-
-      if (!isMember) throw new Error("Not a group member");
-
-      const expense = await prisma.expense.create({
-        data: {
-          title,
-          amount,
-          group: { connect: { id: groupId } },
-          paidBy: { connect: { id: session.user.id } },
-        },
-      });
-
-      return expense;
-    },
-
     createGroupWithMembers: async (
       _: any,
       { name, userIds }: { name: string; userIds: string[] }
@@ -133,6 +101,41 @@ export const resolvers = {
       });
 
       return group;
+    },
+
+    addExpense: async (
+      _: any,
+      {
+        groupId,
+        title,
+        amount,
+        notes,
+      }: { groupId: string; title: string; amount: number; notes?: string }
+    ) => {
+      const session = await auth();
+      if (!session?.user?.id) throw new Error("Unauthorized");
+
+      const isMember = await prisma.userGroup.findFirst({
+        where: {
+          userId: session.user.id,
+          groupId,
+        },
+      });
+
+      if (!isMember) throw new Error("Not a group member");
+
+      const expense = await prisma.expense.create({
+        data: {
+          title,
+          amount,
+          notes,
+          group: { connect: { id: groupId } },
+          paidBy: { connect: { id: session.user.id } },
+        },
+        include: { paidBy: true, group: true },
+      });
+
+      return expense;
     },
   },
 
