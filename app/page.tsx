@@ -79,32 +79,6 @@ export default function HomePage() {
 
         <div className="glass-card hover:shadow-white/20 transition-all duration-300">
           <div className="flex items-center gap-2 mb-4">
-            <FaUsers size={20} />
-            <h2 className="text-lg font-medium">Your Groups</h2>
-          </div>
-          <ul className="space-y-2">
-            {meData?.me?.groups?.map((group: any) => (
-              <li
-                key={group.id}
-                className="px-3 py-2 bg-white/5 hover:bg-white/10 rounded-md transition-all flex justify-between items-center"
-              >
-                <Link href={`/groups/${group.id}`}>{group.name}</Link>
-                <button
-                  onClick={() => {
-                    setSelectedGroupId(group.id);
-                    setShowExpenseModal(true);
-                  }}
-                  className="text-sm text-white px-2 py-2 rounded-md bg-white/20 hover:bg-white/30 transition-all duration-150"
-                >
-                  + Expense
-                </button>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <div className="glass-card hover:shadow-white/20 transition-all duration-300">
-          <div className="flex items-center gap-2 mb-4">
             <FaClock size={20} />
             <h2 className="text-lg font-medium">Recent Activity</h2>
           </div>
@@ -128,6 +102,32 @@ export default function HomePage() {
           ) : (
             <p className="text-sm text-neutral-400">No activity yet.</p>
           )}
+        </div>
+
+        <div className="glass-card hover:shadow-white/20 transition-all duration-300">
+          <div className="flex items-center gap-2 mb-4">
+            <FaUsers size={20} />
+            <h2 className="text-lg font-medium">Your Groups</h2>
+          </div>
+          <ul className="space-y-2">
+            {meData?.me?.groups?.map((group: any) => (
+              <li
+                key={group.id}
+                className="px-3 py-2 bg-white/5 hover:bg-white/10 rounded-md transition-all flex justify-between items-center"
+              >
+                <Link href={`/groups/${group.id}`}>{group.name}</Link>
+                <button
+                  onClick={() => {
+                    setSelectedGroupId(group.id);
+                    setShowExpenseModal(true);
+                  }}
+                  className="text-sm text-white px-2 py-2 rounded-md bg-white/20 hover:bg-white/30 transition-all duration-150"
+                >
+                  + Expense
+                </button>
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
 
