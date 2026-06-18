@@ -5,6 +5,7 @@ import Navbar from "@/components/Navbar";
 import { Provider } from "./providers";
 
 const font = Nunito({
+  subsets: ["latin"]
   weight: ["400", "500", "600", "700"],
 });
 
