@@ -32,13 +32,17 @@ export default function HomePage() {
 
   const totalOwed = useMemo(() => {
     return balances
-      .filter((b: any) => b.from.id === currentUserId)
+      .filter(
+        (b: any) => b.from.id === currentUserId && b.to.id !== currentUserId,
+      )
       .reduce((sum: number, b: any) => sum + b.amount, 0);
   }, [balances, currentUserId]);
 
   const totalLent = useMemo(() => {
     return balances
-      .filter((b: any) => b.to.id === currentUserId)
+      .filter(
+        (b: any) => b.to.id === currentUserId && b.from.id !== currentUserId,
+      )
       .reduce((sum: number, b: any) => sum + b.amount, 0);
   }, [balances, currentUserId]);
 
