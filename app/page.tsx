@@ -81,34 +81,7 @@ export default function HomePage() {
           </div>
         </div>
 
-        <div className="glass-card hover:shadow-white/20 transition-all duration-300">
-          <div className="flex items-center gap-2 mb-4">
-            <FaClock size={20} />
-            <h2 className="text-lg font-medium">Recent Activity</h2>
-          </div>
-          {logData?.activityLogs?.length ? (
-            <ul className="space-y-2 text-neutral-300">
-              {logData.activityLogs.slice(0, 4).map((log: any) => (
-                <li
-                  key={log.id}
-                  className="bg-white/5 px-3 py-2 rounded-md text-sm"
-                >
-                  <span className="text-white font-medium">
-                    {log.user.name}
-                  </span>{" "}
-                  {log.message}
-                  <span className="block text-xs text-white/40">
-                    {new Date(log.createdAt).toLocaleString()}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="text-sm text-neutral-400">No activity yet.</p>
-          )}
-        </div>
-
-        <div className="glass-card hover:shadow-white/20 transition-all duration-300">
+        <div className="glass-card hover:shadow-white/20 transition-all duration-300 mb-10">
           <div className="flex items-center gap-2 mb-4">
             <FaUsers size={20} />
             <h2 className="text-lg font-medium">Your Groups</h2>
@@ -133,6 +106,31 @@ export default function HomePage() {
             ))}
           </ul>
         </div>
+      </div>
+
+      <div className="glass-card hover:shadow-white/20 transition-all duration-300">
+        <div className="flex items-center gap-2 mb-4">
+          <FaClock size={20} />
+          <h2 className="text-lg font-medium">Recent Activity</h2>
+        </div>
+        {logData?.activityLogs?.length ? (
+          <ul className="space-y-2 text-neutral-300">
+            {logData.activityLogs.slice(0, 4).map((log: any) => (
+              <li
+                key={log.id}
+                className="bg-white/5 px-3 py-2 rounded-md text-sm"
+              >
+                <span className="text-white font-medium">{log.user.name}</span>{" "}
+                {log.message}
+                <span className="block text-xs text-white/40">
+                  {new Date(log.createdAt).toLocaleString()}
+                </span>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="text-sm text-neutral-400">No activity yet.</p>
+        )}
       </div>
 
       <CreateGroupModal />

@@ -16,7 +16,7 @@ const AddExpenseModal = ({ groupId, onClose }: AddExpenseModalProps) => {
   const [notes, setNotes] = useState("");
   const [splitWith, setSplitWith] = useState<string[]>([]);
 
-  const [addExpense] = useMutation(ADD_EXPENSE);
+  const [addExpense, { loading }] = useMutation(ADD_EXPENSE);
   const { data: meData } = useQuery(ME_QUERY);
 
   const group = meData?.me?.groups.find((g: any) => g.id === groupId);
@@ -33,25 +33,34 @@ const AddExpenseModal = ({ groupId, onClose }: AddExpenseModalProps) => {
     setSplitWith((prev) =>
       prev.includes(userId)
         ? prev.filter((id) => id !== userId)
-        : [...prev, userId]
+        : [...prev, userId],
     );
   };
 
   const handleAdd = async () => {
-    if (!title || !amount || splitWith.length === 0) return;
+    if (!title || !amount || splitWith.length === 0 || loading) return;
 
-    await addExpense({
-      variables: {
-        groupId,
-        title,
-        amount: parseFloat(amount.toString()),
-        notes,
-        splitWith,
-      },
-      refetchQueries: [{ query: EXPENSE_QUERY, variables: { groupId } }],
-    });
+    try {
+      await addExpense({
+        variables: {
+          groupId,
+          title,
+          amount: parseFloat(amount.toString()),
+          notes,
+          splitWith,
+        },
+        refetchQueries: [
+          {
+            query: EXPENSE_QUERY,
+            variables: { groupId },
+          },
+        ],
+      });
 
-    onClose();
+      onClose();
+    } catch (error) {
+      console.error(error);
+    }
   };
   return (
     <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center">
@@ -106,9 +115,17 @@ const AddExpenseModal = ({ groupId, onClose }: AddExpenseModalProps) => {
 
         <button
           onClick={handleAdd}
-          className="w-full py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white transition duration-150"
+          disabled={loading}
+          className="w-full py-2 rounded-lg bg-white/10 hover:bg-white/20 disabled:bg-white/5 disabled:text-white/40 disabled:cursor-not-allowed text-white transition-all duration-150"
         >
-          Add Expense
+          {loading ? (
+            <span className="flex items-center justify-center gap-2">
+              <span className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              Adding Expense...
+            </span>
+          ) : (
+            "Add Expense"
+          )}{" "}
         </button>
       </div>
     </div>

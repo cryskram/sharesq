@@ -18,24 +18,32 @@ export default function SettleUpModal({
   const [amount, setAmount] = useState(0);
   const [note, setNote] = useState("");
 
-  const [settleUp] = useMutation(SETTLE_UP);
-
+  const [settleUp, { loading: settling }] = useMutation(SETTLE_UP);
   const filteredBalances = balances.filter((b) => b.from.id === currentUserId);
 
   const handleSettle = async () => {
-    if (!toUserId || !amount) return;
+    if (!toUserId || !amount || settling) return;
 
-    await settleUp({
-      variables: {
-        groupId,
-        toUserId,
-        amount: parseFloat(amount.toString()),
-        note,
-      },
-      refetchQueries: [{ query: GET_BALANCES, variables: { groupId } }],
-    });
+    try {
+      await settleUp({
+        variables: {
+          groupId,
+          toUserId,
+          amount: parseFloat(amount.toString()),
+          note,
+        },
+        refetchQueries: [
+          {
+            query: GET_BALANCES,
+            variables: { groupId },
+          },
+        ],
+      });
 
-    onClose();
+      onClose();
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return (
@@ -51,7 +59,18 @@ export default function SettleUpModal({
 
         <select
           value={toUserId}
-          onChange={(e) => setToUserId(e.target.value)}
+          onChange={(e) => {
+            const selectedId = e.target.value;
+            setToUserId(selectedId);
+
+            const balance = filteredBalances.find(
+              (b) => b.to.id === selectedId,
+            );
+
+            if (balance) {
+              setAmount(balance.amount);
+            }
+          }}
           className="w-full px-4 py-2 bg-white/10 text-white rounded-lg"
         >
           <option className="bg-black" value="">
@@ -81,9 +100,17 @@ export default function SettleUpModal({
 
         <button
           onClick={handleSettle}
-          className="w-full py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white transition duration-150"
+          disabled={settling || !toUserId || amount <= 0}
+          className="w-full py-2 rounded-lg bg-green-500/15 border border-green-500/30 text-green-300 hover:bg-green-500/25 transition-all duration-200 disabled:bg-white/5 disabled:border-white/10 disabled:text-white/40 disabled:cursor-not-allowed disabled:hover:bg-white/5"
         >
-          Settle
+          {settling ? (
+            <span className="flex items-center justify-center gap-2">
+              <span className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              Settling...
+            </span>
+          ) : (
+            "Settle Up"
+          )}
         </button>
       </div>
     </div>

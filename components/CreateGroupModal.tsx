@@ -14,8 +14,9 @@ export default function CreateGroupModal() {
   const [selectedUsers, setSelectedUsers] = useState<any[]>([]);
 
   const { data, loading } = useQuery(USERS_QUERY);
-  const [createGroup] = useMutation(CREATE_GROUP_WITH_MEMBERS);
-
+  const [createGroup, { loading: creatingGroup }] = useMutation(
+    CREATE_GROUP_WITH_MEMBERS,
+  );
   const { data: session } = useSession();
 
   const users = data?.users || [];
@@ -26,7 +27,7 @@ export default function CreateGroupModal() {
       !selectedUsers.find((u) => u.id === user.id) &&
       (user.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         user.username?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        user.email?.toLowerCase().includes(searchQuery.toLowerCase()))
+        user.email?.toLowerCase().includes(searchQuery.toLowerCase())),
   );
 
   const handleAddUser = (user: any) => {
@@ -35,14 +36,27 @@ export default function CreateGroupModal() {
   };
 
   const handleCreateGroup = async () => {
-    if (!groupName || selectedUsers.length === 0) return;
-    const userIds = selectedUsers.map((u) => u.id);
+    if (!groupName || selectedUsers.length === 0 || creatingGroup) {
+      return;
+    }
 
-    await createGroup({ variables: { name: groupName, userIds } });
+    try {
+      const userIds = selectedUsers.map((u) => u.id);
 
-    setGroupName("");
-    setSelectedUsers([]);
-    setShowModal(false);
+      await createGroup({
+        variables: {
+          name: groupName,
+          userIds,
+        },
+      });
+
+      setGroupName("");
+      setSearchQuery("");
+      setSelectedUsers([]);
+      setShowModal(false);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return (
@@ -107,9 +121,19 @@ export default function CreateGroupModal() {
 
             <button
               onClick={handleCreateGroup}
-              className="w-full mt-2 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white transition"
+              disabled={
+                creatingGroup || !groupName.trim() || selectedUsers.length === 0
+              }
+              className="w-full mt-2 py-2 rounded-lg bg-white/10 hover:bg-white/20 disabled:bg-white/5 disabled:text-white/40 disabled:cursor-not-allowed disabled:hover:bg-white/5 text-white transition-all duration-200"
             >
-              Create Group
+              {creatingGroup ? (
+                <span className="flex items-center justify-center gap-2">
+                  <span className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  Creating Group...
+                </span>
+              ) : (
+                "Create Group"
+              )}
             </button>
           </div>
         </div>
