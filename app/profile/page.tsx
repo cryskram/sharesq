@@ -12,22 +12,22 @@ export default function ProfilePage() {
   const me = data?.me;
 
   if (status === "loading" || loading) {
-    return <div className="text-white p-10">Loading your profile...</div>;
+    return <div className="p-10 text-white">Loading your profile...</div>;
   }
 
   return (
     <div className="bg-black">
-      <main className="min-h-screen px-4 pt-28 pb-20 text-white max-w-3xl mx-auto space-y-10">
-        <div className="glass-card p-6 space-y-6">
+      <main className="mx-auto min-h-screen max-w-3xl space-y-10 px-4 pt-28 pb-20 text-white">
+        <div className="glass-card space-y-6 p-6">
           <div className="flex items-center gap-4">
             {user?.image ? (
               <img
                 src={user.image}
                 alt="Profile"
-                className="w-20 h-20 rounded-full border border-white/20 object-cover"
+                className="h-20 w-20 rounded-full border border-white/20 object-cover"
               />
             ) : (
-              <div className="w-20 h-20 rounded-full bg-white/10 flex items-center justify-center text-white/60 text-2xl font-semibold">
+              <div className="flex h-20 w-20 items-center justify-center rounded-full bg-white/10 text-2xl font-semibold text-white/60">
                 {user?.name?.[0] || "?"}
               </div>
             )}
@@ -41,11 +41,11 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          <div className="border-t border-white/10 pt-4 space-y-2">
+          <div className="space-y-2 border-t border-white/10 pt-4">
             <h2 className="text-lg font-semibold text-white/80">Group Info</h2>
-            <p className="text-white/80 text-sm">
+            <p className="text-sm text-white/80">
               You’re part of{" "}
-              <span className="text-white font-semibold">
+              <span className="font-semibold text-white">
                 {me?.groups?.length || 0}
               </span>{" "}
               group{me?.groups?.length !== 1 && "s"}.
@@ -56,9 +56,9 @@ export default function ProfilePage() {
                 {me.groups.map((group: any) => (
                   <li
                     key={group.id}
-                    className="bg-white/5 px-3 py-2 rounded-md text-sm"
+                    className="rounded-md bg-white/5 px-3 py-2 text-sm"
                   >
-                    <div className="flex justify-between items-center">
+                    <div className="flex items-center justify-between">
                       <span className="text-white">{group.name}</span>
                       <span className="text-xs text-white/50">
                         Code: {group.inviteCode}
@@ -72,7 +72,7 @@ export default function ProfilePage() {
 
           <button
             onClick={() => signOut()}
-            className="text-sm text-red-400 px-4 py-2 rounded-md border border-red-500/20 hover:bg-red-500/10 transition-all"
+            className="rounded-md border border-red-500/20 px-4 py-2 text-sm text-red-400 transition-all hover:bg-red-500/10"
           >
             Sign Out
           </button>

@@ -8,7 +8,9 @@
     "start": "next start",
     "lint": "next lint",
     "postinstall": "prisma generate",
-    "seed": "ts-node prisma/seed.js"
+    "seed": "ts-node prisma/seed.js",
+    "format": "prettier . --write",
+    "format:check": "prettier . --check"
   },
   "dependencies": {
     "@apollo/client": "^3.13.9",
@@ -27,6 +29,8 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "prettier": "^3.8.4",
+    "prettier-plugin-tailwindcss": "^0.8.0",
     "prisma": "^6.13.0",
     "tailwindcss": "^4",
     "typescript": "^5"

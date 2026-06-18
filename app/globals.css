@@ -1,61 +1,84 @@
 @import "tailwindcss";
 
+:root {
+  --background: #09090b;
+  --card: rgba(17, 17, 19, 0.82);
+  --border: rgba(255, 255, 255, 0.06);
+
+  --text: #fafafa;
+  --muted: #a1a1aa;
+
+  --primary: #a78bfa;
+  --success: #22c55e;
+  --danger: #ef4444;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--background);
+  color: var(--text);
+}
+
 @layer utilities {
   .glass-card {
-    @apply p-5 rounded-2xl backdrop-blur-md bg-white/10 border border-white/20 shadow-lg;
-    background: linear-gradient(135deg,
-        rgba(255, 255, 255, 0.08),
-        rgba(255, 255, 255, 0.03));
+    @apply rounded-3xl border p-6;
+    background: var(--card);
+    border-color: var(--border);
+    backdrop-filter: blur(20px);
     box-shadow:
-      0 4px 30px rgba(0, 0, 0, 0.4),
-      0 0 20px rgba(255, 255, 255, 0.05);
-  }
-}
-
-@keyframes animatedGradient {
-  0% {
-    background-position: 0% 50%;
+      0 10px 40px rgba(0, 0, 0, 0.35),
+      inset 0 1px rgba(255, 255, 255, 0.04);
   }
 
-  50% {
-    background-position: 100% 50%;
+  .subtle-card {
+    @apply rounded-2xl border;
+    background: rgba(255, 255, 255, 0.02);
+    border-color: rgba(255, 255, 255, 0.05);
   }
 
-  100% {
-    background-position: 0% 50%;
-  }
-}
-
-.animated-bg {
-  background: linear-gradient(135deg, #2a0845, #6441a5, #ff6f61);
-  background-size: 400% 400%;
-  animation: animatedGradient 8s ease infinite;
-}
-
-@keyframes breatheColors {
-  0% {
-    background-position: 0% 50%;
+  .gradient-text {
+    background: linear-gradient(135deg, #c4b5fd, #a78bfa, #8b5cf6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
   }
 
-  25% {
-    background-position: 50% 0%;
+  .premium-button {
+    @apply rounded-xl px-4 py-2 font-medium transition-all duration-200;
+    background: rgba(167, 139, 250, 0.12);
+    border: 1px solid rgba(167, 139, 250, 0.25);
+    color: #c4b5fd;
   }
 
-  50% {
-    background-position: 100% 50%;
+  .premium-button:hover {
+    background: rgba(167, 139, 250, 0.22);
+    transform: translateY(-1px);
   }
 
-  75% {
-    background-position: 50% 100%;
+  .danger-button {
+    @apply rounded-xl px-3 py-1.5 transition-all duration-200;
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    color: #fca5a5;
   }
 
-  100% {
-    background-position: 0% 50%;
+  .danger-button:hover {
+    background: rgba(239, 68, 68, 0.18);
   }
-}
 
-.animated-breathe-bg {
-  background: linear-gradient(135deg, #2a0845, #6441a5, #ff6f61);
-  background-size: 600% 600%;
-  animation: breatheColors 15s ease-in-out infinite;
+  .input-dark {
+    @apply w-full rounded-2xl px-4 py-3 transition-all duration-200 outline-none;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    color: white;
+  }
+
+  .input-dark:focus {
+    border-color: rgba(167, 139, 250, 0.5);
+    box-shadow:
+      0 0 0 1px rgba(167, 139, 250, 0.4),
+      0 0 20px rgba(167, 139, 250, 0.1);
+  }
 }

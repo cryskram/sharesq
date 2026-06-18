@@ -5,6 +5,7 @@ import { useMutation, useQuery } from "@apollo/client";
 import { CgClose } from "react-icons/cg";
 import { GoPlusCircle } from "react-icons/go";
 import { useSession } from "next-auth/react";
+
 import { CREATE_GROUP_WITH_MEMBERS, USERS_QUERY } from "@/lib/queries";
 
 export default function CreateGroupModal() {
@@ -12,8 +13,7 @@ export default function CreateGroupModal() {
   const [groupName, setGroupName] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedUsers, setSelectedUsers] = useState<any[]>([]);
-
-  const { data, loading } = useQuery(USERS_QUERY);
+  const { data } = useQuery(USERS_QUERY);
   const [createGroup, { loading: creatingGroup }] = useMutation(
     CREATE_GROUP_WITH_MEMBERS,
   );
@@ -35,8 +35,12 @@ export default function CreateGroupModal() {
     setSearchQuery("");
   };
 
+  const handleRemoveUser = (userId: string) => {
+    setSelectedUsers((prev) => prev.filter((u) => u.id !== userId));
+  };
+
   const handleCreateGroup = async () => {
-    if (!groupName || selectedUsers.length === 0 || creatingGroup) {
+    if (!groupName.trim() || selectedUsers.length === 0 || creatingGroup) {
       return;
     }
 
@@ -63,78 +67,115 @@ export default function CreateGroupModal() {
     <>
       <button
         onClick={() => setShowModal(true)}
-        className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-white/10 border border-white/20 backdrop-blur-md text-white text-3xl flex items-center justify-center shadow-lg hover:scale-105 transition"
+        className="fixed right-8 bottom-8 z-50 flex h-16 w-16 items-center justify-center rounded-2xl bg-violet-500 text-white shadow-[0_0_20px_rgba(167,139,250,0.4)] transition-all hover:scale-105"
       >
-        <GoPlusCircle />
+        <GoPlusCircle size={28} />
       </button>
 
       {showModal && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center">
-          <div className="glass-card w-full max-w-md p-6 space-y-4 relative">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-md">
+          <div className="glass-card relative w-full max-w-xl p-8">
             <button
               onClick={() => setShowModal(false)}
-              className="absolute top-3 right-3 text-white/60 hover:text-white"
+              className="absolute top-4 right-4 flex h-10 w-10 items-center justify-center rounded-xl border border-white/[0.05] bg-white/[0.03] transition-all hover:border-white/[0.12]"
             >
               <CgClose />
             </button>
 
-            <h2 className="text-xl font-semibold text-white">Create Group</h2>
+            <div className="mb-6">
+              <p className="text-xs tracking-widest text-zinc-500 uppercase">
+                ShareSq
+              </p>
 
-            <input
-              type="text"
-              placeholder="Group Name"
-              value={groupName}
-              onChange={(e) => setGroupName(e.target.value)}
-              className="w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white placeholder:text-white/40 outline-none"
-            />
+              <h2 className="mt-2 text-3xl font-bold">Create Group</h2>
 
-            <input
-              type="text"
-              placeholder="Search users"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white placeholder:text-white/40 outline-none"
-            />
-
-            <ul className="max-h-32 overflow-y-auto space-y-2">
-              {filteredUsers.map((user: any) => (
-                <li
-                  key={user.id}
-                  onClick={() => handleAddUser(user)}
-                  className="cursor-pointer bg-white/5 px-3 py-2 rounded-md hover:bg-white/10 text-white"
-                >
-                  {user.name} ({user.username || user.email})
-                </li>
-              ))}
-            </ul>
-
-            <div className="flex flex-wrap gap-2">
-              {selectedUsers.map((user) => (
-                <span
-                  key={user.id}
-                  className="px-3 py-1 bg-white/10 text-white/90 rounded-full text-sm"
-                >
-                  {user.name}
-                </span>
-              ))}
+              <p className="mt-2 text-zinc-500">
+                Add friends and start splitting expenses.
+              </p>
             </div>
 
-            <button
-              onClick={handleCreateGroup}
-              disabled={
-                creatingGroup || !groupName.trim() || selectedUsers.length === 0
-              }
-              className="w-full mt-2 py-2 rounded-lg bg-white/10 hover:bg-white/20 disabled:bg-white/5 disabled:text-white/40 disabled:cursor-not-allowed disabled:hover:bg-white/5 text-white transition-all duration-200"
-            >
-              {creatingGroup ? (
-                <span className="flex items-center justify-center gap-2">
-                  <span className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  Creating Group...
-                </span>
-              ) : (
-                "Create Group"
+            <div className="space-y-4">
+              <input
+                type="text"
+                placeholder="Group Name"
+                value={groupName}
+                onChange={(e) => setGroupName(e.target.value)}
+                className="input-dark"
+              />
+
+              <input
+                type="text"
+                placeholder="Search users..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="input-dark"
+              />
+
+              {selectedUsers.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {selectedUsers.map((user) => (
+                    <button
+                      key={user.id}
+                      onClick={() => handleRemoveUser(user.id)}
+                      className="flex items-center gap-2 rounded-xl border border-violet-500/20 bg-violet-500/10 px-3 py-2 text-violet-300 transition-all hover:bg-violet-500/20"
+                    >
+                      <div className="flex h-7 w-7 items-center justify-center rounded-full bg-violet-500/20 text-xs font-semibold">
+                        {user.name?.[0]}
+                      </div>
+
+                      <span>{user.name}</span>
+
+                      <span>×</span>
+                    </button>
+                  ))}
+                </div>
               )}
-            </button>
+
+              <div className="max-h-64 space-y-2 overflow-y-auto">
+                {filteredUsers.map((user: any) => (
+                  <button
+                    key={user.id}
+                    onClick={() => handleAddUser(user)}
+                    className="flex w-full items-center justify-between rounded-xl border border-white/[0.04] bg-white/[0.02] px-4 py-3 transition-all hover:border-violet-500/30 hover:bg-violet-500/5"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-9 w-9 items-center justify-center rounded-full bg-white/[0.05] font-semibold">
+                        {user.name?.[0]}
+                      </div>
+
+                      <div className="text-left">
+                        <p className="font-medium">{user.name}</p>
+
+                        <p className="text-xs text-zinc-500">
+                          {user.username || user.email}
+                        </p>
+                      </div>
+                    </div>
+
+                    <span className="text-sm text-violet-400">Add</span>
+                  </button>
+                ))}
+              </div>
+
+              <button
+                onClick={handleCreateGroup}
+                disabled={
+                  creatingGroup ||
+                  !groupName.trim() ||
+                  selectedUsers.length === 0
+                }
+                className="w-full rounded-2xl bg-violet-500 py-3 font-medium text-white transition-all hover:bg-violet-400 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {creatingGroup ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                    Creating Group...
+                  </span>
+                ) : (
+                  "Create Group"
+                )}
+              </button>
+            </div>
           </div>
         </div>
       )}

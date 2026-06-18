@@ -17,10 +17,11 @@ const AddExpenseModal = ({ groupId, onClose }: AddExpenseModalProps) => {
   const [splitWith, setSplitWith] = useState<string[]>([]);
 
   const [addExpense, { loading }] = useMutation(ADD_EXPENSE);
+
   const { data: meData } = useQuery(ME_QUERY);
 
   const group = meData?.me?.groups.find((g: any) => g.id === groupId);
-  const members = group?.members || [];
+
   const currentUserId = meData?.me?.id;
 
   useEffect(() => {
@@ -38,21 +39,23 @@ const AddExpenseModal = ({ groupId, onClose }: AddExpenseModalProps) => {
   };
 
   const handleAdd = async () => {
-    if (!title || !amount || splitWith.length === 0 || loading) return;
+    if (!title.trim() || !amount || splitWith.length === 0 || loading) return;
 
     try {
       await addExpense({
         variables: {
           groupId,
           title,
-          amount: parseFloat(amount.toString()),
+          amount: Number(amount),
           notes,
           splitWith,
         },
         refetchQueries: [
           {
             query: EXPENSE_QUERY,
-            variables: { groupId },
+            variables: {
+              groupId,
+            },
           },
         ],
       });
@@ -62,71 +65,97 @@ const AddExpenseModal = ({ groupId, onClose }: AddExpenseModalProps) => {
       console.error(error);
     }
   };
+
   return (
-    <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center">
-      <div className="glass-card w-full max-w-md p-6 space-y-4 relative">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-md">
+      {" "}
+      <div className="glass-card relative w-full max-w-xl p-8">
         <button
-          className="absolute top-3 right-3 text-white/60 hover:text-white"
           onClick={onClose}
+          className="absolute top-4 right-4 flex h-10 w-10 items-center justify-center rounded-xl border border-white/[0.05] bg-white/[0.03] transition-all hover:border-white/[0.12]"
         >
           <CgClose />
         </button>
-        <h1 className="text-xl font-semibold text-white">Add Expense</h1>
+        <div className="mb-6">
+          <p className="text-xs tracking-widest text-zinc-500 uppercase">
+            Expenses
+          </p>
 
-        <input
-          type="text"
-          placeholder="Title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          className="w-full px-4 py-2 rounded-lg bg-white/10 text-white placeholder:text-white/40 outline-none"
-        />
-        <input
-          type="number"
-          placeholder="Amount"
-          value={amount}
-          onChange={(e) => setAmount(parseFloat(e.target.value))}
-          className="w-full px-4 py-2 rounded-lg bg-white/10 text-white placeholder:text-white/40 outline-none"
-        />
-        <textarea
-          placeholder="Notes (optional)"
-          value={notes}
-          onChange={(e) => setNotes(e.target.value)}
-          className="w-full px-4 py-2 rounded-lg bg-white/10 text-white placeholder:text-white/40 outline-none resize-none"
-        />
+          <h1 className="mt-2 text-3xl font-bold">Add Expense</h1>
 
-        <div>
-          <p className="text-white/80 text-sm mb-2">Split With:</p>
-          <ul className="max-h-32 overflow-y-auto space-y-2">
-            {group?.members?.map((member: any) => (
-              <li
-                key={member.id}
-                className="flex items-center gap-2 text-white"
-              >
-                <input
-                  type="checkbox"
-                  checked={splitWith.includes(member.id)}
-                  onChange={() => toggleSplitUser(member.id)}
-                />
-                <label>{member.name}</label>
-              </li>
-            ))}
-          </ul>
+          <p className="mt-2 text-zinc-500">
+            Record a shared expense and split it with your group.
+          </p>
         </div>
+        <div className="space-y-4">
+          <input
+            type="text"
+            placeholder="Dinner, Munnar Trip, Rental..."
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            className="input-dark"
+          />
 
-        <button
-          onClick={handleAdd}
-          disabled={loading}
-          className="w-full py-2 rounded-lg bg-white/10 hover:bg-white/20 disabled:bg-white/5 disabled:text-white/40 disabled:cursor-not-allowed text-white transition-all duration-150"
-        >
-          {loading ? (
-            <span className="flex items-center justify-center gap-2">
-              <span className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              Adding Expense...
+          <div className="relative">
+            <span className="absolute top-1/2 left-4 -translate-y-1/2 text-zinc-500">
+              ₹
             </span>
-          ) : (
-            "Add Expense"
-          )}{" "}
-        </button>
+
+            <input
+              type="number"
+              placeholder="Amount"
+              value={amount || ""}
+              onChange={(e) => setAmount(parseFloat(e.target.value) || 0)}
+              className="input-dark pl-8"
+            />
+          </div>
+
+          <textarea
+            placeholder="Notes (optional)"
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            rows={3}
+            className="input-dark resize-none"
+          />
+
+          <div>
+            <p className="mb-3 text-sm text-zinc-400">Split With</p>
+
+            <div className="flex flex-wrap gap-2">
+              {group?.members?.map((member: any) => (
+                <button
+                  key={member.id}
+                  type="button"
+                  onClick={() => toggleSplitUser(member.id)}
+                  className={`rounded-xl border px-4 py-2 transition-all duration-200 ${
+                    splitWith.includes(member.id)
+                      ? "border-violet-500/30 bg-violet-500/15 text-violet-300"
+                      : "border-white/[0.05] bg-white/[0.02] text-white"
+                  } `}
+                >
+                  {member.name}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <button
+            onClick={handleAdd}
+            disabled={
+              loading || !title.trim() || amount <= 0 || splitWith.length === 0
+            }
+            className="w-full rounded-2xl bg-violet-500 py-3 font-medium text-white transition-all hover:bg-violet-400 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-violet-500"
+          >
+            {loading ? (
+              <span className="flex items-center justify-center gap-2">
+                <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                Adding Expense...
+              </span>
+            ) : (
+              "Add Expense"
+            )}
+          </button>
+        </div>
       </div>
     </div>
   );

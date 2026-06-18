@@ -2,21 +2,27 @@
 
 import AddExpenseModal from "@/components/AddExpenseModal";
 import CreateGroupModal from "@/components/CreateGroupModal";
-import { ME_QUERY, ACTIVITY_LOGS, GET_MY_BALANCES } from "@/lib/queries";
+
+import { ACTIVITY_LOGS, GET_MY_BALANCES, ME_QUERY } from "@/lib/queries";
+
 import { useQuery } from "@apollo/client";
+
 import Link from "next/link";
-import { useState, useMemo } from "react";
+
+import { useMemo, useState } from "react";
+
 import {
   FaArrowCircleDown,
   FaArrowCircleUp,
-  FaUsers,
   FaClock,
+  FaUsers,
 } from "react-icons/fa";
 
 export default function HomePage() {
   const { data: meData, loading: meLoading } = useQuery(ME_QUERY);
-  const { data: balanceData, loading: balanceLoading } =
-    useQuery(GET_MY_BALANCES);
+
+  const { data: balanceData } = useQuery(GET_MY_BALANCES);
+
   const { data: logData } = useQuery(ACTIVITY_LOGS, {
     variables: {
       groupId: meData?.me?.groups?.[0]?.id || "",
@@ -25,9 +31,11 @@ export default function HomePage() {
   });
 
   const [showExpenseModal, setShowExpenseModal] = useState(false);
+
   const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null);
 
   const currentUserId = meData?.me?.id;
+
   const balances = balanceData?.myBalances || [];
 
   const totalOwed = useMemo(() => {
@@ -46,104 +54,165 @@ export default function HomePage() {
       .reduce((sum: number, b: any) => sum + b.amount, 0);
   }, [balances, currentUserId]);
 
-  return (
-    <main className="relative min-h-screen px-4 pt-28 pb-20 overflow-hidden text-white">
-      <div className="max-w-5xl mx-auto space-y-10">
-        <h1 className="text-3xl font-semibold text-white/90">
-          {meLoading
-            ? "Loading..."
-            : `Welcome, ${meData?.me?.name?.split(" ")[0] || "there"} 👋`}
-        </h1>
+  const netBalance = totalLent - totalOwed;
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          <div className="glass-card border-l-4 border-red-500 hover:shadow-red-400/30 hover:scale-[1.015] transition-all duration-300">
+  const firstName = meData?.me?.name?.split(" ")[0] || "there";
+
+  return (
+    <div className="min-h-screen px-6 pt-28 pb-20">
+      <div className="mx-auto max-w-6xl">
+        <div className="mb-12">
+          <h1 className="mt-2 text-5xl font-bold tracking-tight">
+            Welcome back,{" "}
+            <span className="gradient-text">
+              {meLoading ? "..." : firstName}
+            </span>
+          </h1>
+          <p className="mt-3 text-zinc-500">
+            Keep track of every expense, balance and settlement.
+          </p>
+        </div>
+        <div className="mb-10 grid gap-6 md:grid-cols-3">
+          <div className="glass-card border border-red-500/10">
             <div className="flex items-center gap-4">
               <FaArrowCircleUp className="text-red-400" size={32} />
               <div>
-                <p className="text-sm text-neutral-300">You Owe</p>
-                <p className="text-xl font-bold text-red-400">
+                <p className="text-xs tracking-widest text-zinc-500 uppercase">
+                  You Owe
+                </p>
+                <p className="mt-1 text-3xl font-bold text-red-400">
                   ₹{totalOwed.toFixed(2)}
                 </p>
               </div>
             </div>
           </div>
 
-          <div className="glass-card border-l-4 border-green-500 hover:shadow-green-400/30 hover:scale-[1.015] transition-all duration-300">
+          <div className="glass-card border border-green-500/10">
             <div className="flex items-center gap-4">
               <FaArrowCircleDown className="text-green-400" size={32} />
               <div>
-                <p className="text-sm text-neutral-300">You Lent</p>
-                <p className="text-xl font-bold text-green-400">
+                <p className="text-xs tracking-widest text-zinc-500 uppercase">
+                  You Lent
+                </p>
+                <p className="mt-1 text-3xl font-bold text-green-400">
                   ₹{totalLent.toFixed(2)}
                 </p>
               </div>
             </div>
           </div>
-        </div>
 
-        <div className="glass-card hover:shadow-white/20 transition-all duration-300 mb-10">
-          <div className="flex items-center gap-2 mb-4">
-            <FaUsers size={20} />
-            <h2 className="text-lg font-medium">Your Groups</h2>
+          <div className="glass-card border border-violet-500/10">
+            <div>
+              <p className="text-xs tracking-widest text-zinc-500 uppercase">
+                Net Balance
+              </p>
+
+              <p
+                className={`mt-2 text-3xl font-bold ${
+                  netBalance >= 0 ? "text-green-400" : "text-red-400"
+                }`}
+              >
+                ₹{Math.abs(netBalance).toFixed(2)}
+              </p>
+
+              <p className="mt-1 text-xs text-zinc-500">
+                {netBalance >= 0 ? "You're owed money" : "You owe money"}
+              </p>
+            </div>
           </div>
-          <ul className="space-y-2">
-            {meData?.me?.groups?.map((group: any) => (
-              <li
-                key={group.id}
-                className="px-3 py-2 bg-white/5 hover:bg-white/10 rounded-md transition-all flex justify-between items-center"
-              >
-                <Link href={`/groups/${group.id}`}>{group.name}</Link>
-                <button
-                  onClick={() => {
-                    setSelectedGroupId(group.id);
-                    setShowExpenseModal(true);
-                  }}
-                  className="text-sm text-white px-2 py-2 rounded-md bg-white/20 hover:bg-white/30 transition-all duration-150"
-                >
-                  + Expense
-                </button>
-              </li>
-            ))}
-          </ul>
         </div>
-      </div>
 
-      <div className="glass-card hover:shadow-white/20 transition-all duration-300">
-        <div className="flex items-center gap-2 mb-4">
-          <FaClock size={20} />
-          <h2 className="text-lg font-medium">Recent Activity</h2>
-        </div>
-        {logData?.activityLogs?.length ? (
-          <ul className="space-y-2 text-neutral-300">
-            {logData.activityLogs.slice(0, 4).map((log: any) => (
-              <li
-                key={log.id}
-                className="bg-white/5 px-3 py-2 rounded-md text-sm"
-              >
-                <span className="text-white font-medium">{log.user.name}</span>{" "}
-                {log.message}
-                <span className="block text-xs text-white/40">
-                  {new Date(log.createdAt).toLocaleString()}
-                </span>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="text-sm text-neutral-400">No activity yet.</p>
+        {meData?.me?.groups?.length === 0 && (
+          <div className="glass-card py-16 text-center">
+            <h3 className="text-xl font-semibold">No groups yet</h3>
+
+            <p className="mt-2 text-zinc-500">
+              Create your first group to start tracking expenses.
+            </p>
+          </div>
         )}
+        <div className="grid gap-8 lg:grid-cols-2">
+          <div className="glass-card">
+            <div className="mb-5 flex items-center gap-2">
+              <FaUsers />
+
+              <h2 className="text-xl font-semibold">Your Groups</h2>
+            </div>
+
+            <div className="space-y-3">
+              {meData?.me?.groups?.map((group: any) => (
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Link
+                      href={`/groups/${group.id}`}
+                      className="text-lg font-semibold transition-colors hover:text-violet-300"
+                    >
+                      {group.name}
+                    </Link>
+
+                    <p className="mt-1 text-sm text-zinc-500">
+                      {group.members?.length || 0} members
+                    </p>
+                  </div>
+
+                  <button
+                    onClick={() => {
+                      setSelectedGroupId(group.id);
+                      setShowExpenseModal(true);
+                    }}
+                    className="rounded-xl border border-violet-500/20 bg-violet-500/15 px-4 py-2 text-violet-300 transition-all hover:bg-violet-500/25"
+                  >
+                    + Expense
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="glass-card">
+            <div className="mb-5 flex items-center gap-2">
+              <FaClock />
+
+              <h2 className="text-xl font-semibold">Recent Activity</h2>
+            </div>
+
+            {logData?.activityLogs?.length ? (
+              <div className="space-y-3">
+                {logData.activityLogs.slice(0, 5).map((log: any) => (
+                  <div
+                    key={log.id}
+                    className="rounded-2xl border border-white/[0.05] bg-white/[0.02] p-4"
+                  >
+                    <p className="text-sm leading-relaxed">
+                      <span className="font-semibold text-violet-300">
+                        {log.user.name}
+                      </span>{" "}
+                      {log.message}
+                    </p>
+
+                    <p className="mt-2 text-xs text-zinc-500">
+                      {new Date(log.createdAt).toLocaleString()}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-zinc-500">No activity yet.</p>
+            )}
+          </div>
+        </div>
       </div>
-
       <CreateGroupModal />
-
       {showExpenseModal && selectedGroupId && (
         <AddExpenseModal
           groupId={selectedGroupId}
           onClose={() => {
             setSelectedGroupId(null);
+
             setShowExpenseModal(false);
           }}
         />
       )}
-    </main>
+    </div>
   );
 }

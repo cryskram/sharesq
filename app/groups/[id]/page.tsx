@@ -11,6 +11,7 @@ import {
 } from "@/lib/queries";
 import { useState } from "react";
 import SettleUpModal from "@/components/SettleUpModal";
+import { FaArrowRightLong } from "react-icons/fa6";
 
 export default function GroupDetailsPage() {
   const { id: groupId } = useParams();
@@ -52,25 +53,56 @@ export default function GroupDetailsPage() {
   });
 
   if (meLoading || !meData?.me?.id) {
-    return <div className="text-white p-10">Loading group...</div>;
+    return <div className="p-10 text-white">Loading group...</div>;
   }
 
   return (
-    <div className="bg-black">
-      <div className="min-h-screen px-4 pt-28 pb-20 text-white max-w-4xl mx-auto space-y-10">
-        <h1 className="text-3xl font-bold">{group?.name}</h1>
+    <div className="min-h-screen px-6 pt-28 pb-20">
+      <div className="mx-auto max-w-6xl space-y-8">
+        <div className="glass-card">
+          <p className="text-xs tracking-widest text-zinc-500 uppercase">
+            Group
+          </p>
 
-        <div className="glass-card space-y-2">
-          <h2 className="text-xl font-semibold mb-2">Simplified Balances</h2>
+          <h1 className="mt-2 text-4xl font-bold">{group?.name}</h1>
+
+          <div className="mt-4 flex flex-wrap gap-4 text-sm text-zinc-400">
+            <span>{group?.members?.length || 0} members</span>
+
+            {group?.inviteCode && <span>Invite: {group.inviteCode}</span>}
+          </div>
+        </div>
+
+        <div className="glass-card">
+          <h2 className="mb-2 text-xl font-semibold">Simplified Balances</h2>
           {balances.length === 0 ? (
-            <p className="text-neutral-400 text-sm">No balances yet.</p>
+            <p className="text-sm text-neutral-400">No balances yet.</p>
           ) : (
             <ul className="space-y-2">
               {balances.map((b: any, idx: number) => (
-                <li key={idx} className="text-sm text-white/90">
-                  <span className="font-medium">{b.from.name}</span> owes{" "}
-                  <span className="font-medium">{b.to.name}</span> ₹
-                  {b.amount.toFixed(2)}
+                <li
+                  key={idx}
+                  className="rounded-2xl border border-white/[0.05] bg-white/[0.02] p-4 transition-all hover:border-violet-500/20"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <span className="font-medium text-white">
+                        {b.from.id === currentUserId ? "You" : b.from.name}
+                      </span>
+
+                      <span className="text-zinc-500">
+                        <FaArrowRightLong />
+                      </span>
+
+                      <span className="font-medium text-violet-300">
+                        {b.to.id === currentUserId ? "You" : b.to.name}
+                      </span>
+                    </div>
+
+                    <span className="font-bold text-green-400">
+                      ₹{b.amount.toFixed(2)}
+                    </span>
+                  </div>
                 </li>
               ))}
             </ul>
@@ -79,7 +111,7 @@ export default function GroupDetailsPage() {
 
         <button
           onClick={() => setShowSettleModal(true)}
-          className="bg-green-500/20 hover:bg-green-500/30 border border-green-400/40 text-green-300 font-medium px-4 py-2 rounded-lg backdrop-blur transition-all duration-200"
+          className="w-full rounded-2xl border border-violet-500/20 bg-violet-500/15 py-3 font-medium text-violet-300 transition-all hover:bg-violet-500/25"
         >
           💸 Settle Up
         </button>
@@ -94,17 +126,17 @@ export default function GroupDetailsPage() {
         )}
 
         <div className="glass-card space-y-2">
-          <h2 className="text-xl font-semibold mb-2">Expenses</h2>
+          <h2 className="mb-2 text-xl font-semibold">Expenses</h2>
           {expenses.length === 0 ? (
-            <p className="text-neutral-400 text-sm">No expenses yet.</p>
+            <p className="text-sm text-neutral-400">No expenses yet.</p>
           ) : (
             <ul className="space-y-2">
               {expenses.map((e: any) => (
                 <li
                   key={e.id}
-                  className="bg-white/5 px-3 py-2 rounded-md text-white"
+                  className="rounded-2xl border border-white/[0.05] bg-white/[0.02] p-4 transition-all hover:border-violet-500/20"
                 >
-                  <div className="flex justify-between items-center">
+                  <div className="flex items-center justify-between">
                     <div>
                       <p className="font-semibold">{e.title}</p>
                       <p className="text-sm text-white/70">
@@ -114,7 +146,6 @@ export default function GroupDetailsPage() {
 
                     <div className="flex items-center gap-3">
                       <p className="font-bold text-green-400">₹{e.amount}</p>
-
                       {e.paidBy.id === currentUserId && (
                         <button
                           onClick={async () => {
@@ -126,7 +157,7 @@ export default function GroupDetailsPage() {
                               });
                             }
                           }}
-                          className="px-3 py-1 text-xs font-medium rounded-lg bg-red-500/15 text-red-300 border border-red-500/30 hover:bg-red-500/25 hover:border-red-500/50 transition-all duration-200"
+                          className="danger-button"
                         >
                           Delete
                         </button>
@@ -140,27 +171,30 @@ export default function GroupDetailsPage() {
         </div>
 
         <div className="glass-card">
-          <h2 className="text-xl font-semibold mb-2">Group Members</h2>
-          <ul className="flex flex-wrap gap-3 text-white/80 text-sm">
+          <h2 className="mb-2 text-xl font-semibold">Group Members</h2>
+          <ul className="flex flex-wrap gap-3 text-sm text-white/80">
             {group?.members?.map((member: any) => (
-              <li
-                key={member.id}
-                className="bg-white/10 px-3 py-1 rounded-full"
-              >
-                {member.name}
+              <li className="flex items-center gap-3 rounded-xl border border-white/[0.04] bg-white/[0.02] p-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-violet-500/20 font-semibold">
+                  {member.name?.[0]}
+                </div>
+                <span>{member.name}</span>
               </li>
             ))}
           </ul>
         </div>
 
         <div className="glass-card">
-          <h2 className="text-xl font-semibold mb-2">Group Activity</h2>
+          <h2 className="mb-2 text-xl font-semibold">Group Activity</h2>
           {logData?.activityLogs?.length === 0 ? (
-            <p className="text-neutral-400 text-sm">No activity yet.</p>
+            <p className="text-sm text-neutral-400">No activity yet.</p>
           ) : (
             <ul className="space-y-2">
               {logData?.activityLogs?.map((log: any) => (
-                <li key={log.id} className="text-sm text-white/80">
+                <li
+                  key={log.id}
+                  className="border-l border-violet-500/20 py-2 pl-4"
+                >
                   <span className="font-medium text-white">
                     {log.user.name}
                   </span>
