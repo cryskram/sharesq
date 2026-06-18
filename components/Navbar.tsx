@@ -3,6 +3,7 @@
 import { signIn, signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import { FaUserCircle } from "react-icons/fa";
+import Image from "next/image";
 
 export default function Navbar() {
   const { data: session } = useSession();
@@ -11,8 +12,14 @@ export default function Navbar() {
     <nav className="fixed top-5 left-1/2 z-50 w-[92%] max-w-6xl -translate-x-1/2 rounded-3xl border border-white/[0.06] bg-[#111113]/80 px-6 py-4 shadow-[0_10px_40px_rgba(0,0,0,0.35)] backdrop-blur-2xl">
       <div className="flex items-center justify-between">
         <Link href="/" className="group flex items-center gap-2">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-violet-500/20 bg-violet-500/15 font-bold text-violet-300">
-            S
+          <div className="relative h-10 w-10">
+            <Image
+              src="/images/logo.png"
+              alt="logo"
+              fill
+              className="object-contain"
+              priority
+            />
           </div>
 
           <div>
@@ -20,9 +27,9 @@ export default function Navbar() {
               Share<sup>2</sup>
             </h1>
 
-            <p className="text-[10px] tracking-[0.2em] text-zinc-500 uppercase">
+            {/* <p className="text-[10px] tracking-[0.2em] text-zinc-500 uppercase">
               Expense Sharing
-            </p>
+            </p> */}
           </div>
         </Link>
 
