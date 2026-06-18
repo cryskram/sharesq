@@ -78,6 +78,8 @@ export const typeDefs = gql`
       note: String
     ): Settlement!
 
+    deleteExpense(expenseId: ID!): Boolean!
+
     createActivityLog(groupId: ID!, message: String!): ActivityLog!
   }
 `;

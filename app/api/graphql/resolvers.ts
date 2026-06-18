@@ -168,7 +168,7 @@ export const resolvers = {
 
     createGroupWithMembers: async (
       _: any,
-      { name, userIds }: { name: string; userIds: string[] }
+      { name, userIds }: { name: string; userIds: string[] },
     ) => {
       const session = await auth();
       if (!session?.user?.id) throw new Error("Unauthorized");
@@ -208,7 +208,7 @@ export const resolvers = {
         amount: number;
         notes?: string;
         splitWith: string[];
-      }
+      },
     ) => {
       const session = await auth();
       if (!session?.user?.id) throw new Error("Unauthorized");
@@ -269,7 +269,7 @@ export const resolvers = {
         toUserId: string;
         amount: number;
         note?: string;
-      }
+      },
     ) => {
       const session = await auth();
       if (!session?.user?.id) throw new Error("Unauthorized");
@@ -312,7 +312,7 @@ export const resolvers = {
 
     createActivityLog: async (
       _: any,
-      { groupId, message }: { groupId: string; message: string }
+      { groupId, message }: { groupId: string; message: string },
     ) => {
       const session = await auth();
       if (!session?.user?.id) throw new Error("Unauthorized");
@@ -325,6 +325,48 @@ export const resolvers = {
         },
         include: { user: true },
       });
+    },
+
+    deleteExpense: async (_: any, { expenseId }: { expenseId: string }) => {
+      const session = await auth();
+
+      if (!session?.user?.id) {
+        throw new Error("Unauthorized");
+      }
+
+      const expense = await prisma.expense.findUnique({
+        where: { id: expenseId },
+      });
+
+      if (!expense) {
+        throw new Error("Expense not found");
+      }
+
+      if (expense.paidById !== session.user.id) {
+        throw new Error("You can only delete your own expenses");
+      }
+
+      await prisma.split.deleteMany({
+        where: {
+          expenseId,
+        },
+      });
+
+      await prisma.activityLog.create({
+        data: {
+          groupId: expense.groupId,
+          userId: session.user.id,
+          message: `deleted expense "${expense.title}"`,
+        },
+      });
+
+      await prisma.expense.delete({
+        where: {
+          id: expenseId,
+        },
+      });
+
+      return true;
     },
   },
 

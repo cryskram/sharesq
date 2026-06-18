@@ -72,6 +72,7 @@ export const EXPENSE_QUERY = gql`
       notes
       createdAt
       paidBy {
+        id
         name
       }
     }
@@ -177,5 +178,11 @@ export const GET_MY_BALANCES = gql`
       }
       amount
     }
+  }
+`;
+
+export const DELETE_EXPENSE = gql`
+  mutation DeleteExpense($expenseId: ID!) {
+    deleteExpense(expenseId: $expenseId)
   }
 `;

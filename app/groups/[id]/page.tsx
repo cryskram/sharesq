@@ -1,9 +1,10 @@
 "use client";
 
-import { useQuery } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
 import { useParams } from "next/navigation";
 import {
   ACTIVITY_LOGS,
+  DELETE_EXPENSE,
   EXPENSE_QUERY,
   GET_BALANCES,
   ME_QUERY,
@@ -22,6 +23,23 @@ export default function GroupDetailsPage() {
   });
   const { data: balanceData } = useQuery(GET_BALANCES, {
     variables: { groupId },
+  });
+
+  const [deleteExpense] = useMutation(DELETE_EXPENSE, {
+    refetchQueries: [
+      {
+        query: EXPENSE_QUERY,
+        variables: { groupId },
+      },
+      {
+        query: GET_BALANCES,
+        variables: { groupId },
+      },
+      {
+        query: ACTIVITY_LOGS,
+        variables: { groupId },
+      },
+    ],
   });
 
   const group = meData?.me?.groups.find((g: any) => g.id === groupId);
@@ -93,7 +111,27 @@ export default function GroupDetailsPage() {
                         Paid by {e.paidBy.name}
                       </p>
                     </div>
-                    <p className="font-bold text-green-400">₹{e.amount}</p>
+
+                    <div className="flex items-center gap-3">
+                      <p className="font-bold text-green-400">₹{e.amount}</p>
+
+                      {e.paidBy.id === currentUserId && (
+                        <button
+                          onClick={async () => {
+                            if (confirm(`Delete "${e.title}"?`)) {
+                              await deleteExpense({
+                                variables: {
+                                  expenseId: e.id,
+                                },
+                              });
+                            }
+                          }}
+                          className="px-3 py-1 text-xs font-medium rounded-lg bg-red-500/15 text-red-300 border border-red-500/30 hover:bg-red-500/25 hover:border-red-500/50 transition-all duration-200"
+                        >
+                          Delete
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </li>
               ))}
